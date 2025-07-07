@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Register - StyleHub Pro{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
+            <div class="cyber-card p-5">
+                <div class="text-center mb-4">
+                    <h2 class="cyber-title mb-3">JOIN THE REVOLUTION</h2>
+                    <p class="text-muted">Create your cyber account with SMS verification</p>
+                </div>
+                
+                <form method="POST" id="registerForm">
+                    <!-- Username -->
+                    <div class="mb-4">
+                        <label class="form-label text-primary fw-bold">
+                            <i class="fas fa-user me-2"></i>Username
+                        </label>
+                        <input type="text" name="username" class="form-control form-control-cyber" 
+                               placeholder="Enter your username" required>
+                    </div>
+                    
+                    <!-- Phone -->
+                    <div class="mb-4">
+                        <label class="form-label text-primary fw-bold">
+                            <i class="fas fa-mobile-alt me-2"></i>Phone Number
+                        </label>
+                        <input type="tel" name="phone" class="form-control form-control-cyber" 
+                               placeholder="+91XXXXXXXXXX" pattern="^\+91[6-9]\d{9}$" required>
+                        <small class="text-muted">Format: +91XXXXXXXXXX</small>
+                    </div>
+                    
+                    <!-- Password -->
+                    <div class="mb-4">
+                        <label class="form-label text-primary fw-bold">
+                            <i class="fas fa-lock me-2"></i>Password
+                        </label>
+                        <div class="position-relative">
+                            <input type="password" name="password" id="password" class="form-control form-control-cyber" 
+                                   placeholder="Enter your password" minlength="6" required>
+                            <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-muted" 
+                                    onclick="togglePassword('password')">
+                                <i class="fas fa-eye" id="password-eye"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted">Minimum 6 characters</small>
+                    </div>
+                    
+                    <!-- Confirm Password -->
+                    <div class="mb-4">
+                        <label class="form-label text-primary fw-bold">
+                            <i class="fas fa-lock me-2"></i>Confirm Password
+                        </label>
+                        <div class="position-relative">
+                            <input type="password" name="confirm_password" id="confirm_password" class="form-control form-control-cyber" 
+                                   placeholder="Confirm your password" required>
+                            <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-muted" 
+                                    onclick="togglePassword('confirm_password')">
+                                <i class="fas fa-eye" id="confirm_password-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Terms -->
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="terms" required>
+                            <label class="form-check-label text-light" for="terms">
+                                I agree to the <a href="#" class="text-primary">Terms of Service</a> and 
+                                <a href="#" class="text-primary">Privacy Policy</a>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="d-grid mb-4">
+                        <button type="submit" class="btn btn-cyber btn-lg">
+                            <i class="fas fa-rocket me-2"></i>CREATE ACCOUNT
+                        </button>
+                    </div>
+                    
+                    <!-- Login Link -->
+                    <div class="text-center">
+                        <span class="text-muted">Already have an account? </span>
+                        <a href="{{ url_for('login') }}" class="text-primary fw-bold">Sign In</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function togglePassword(fieldId) {
+        const field = document.getElementById(fieldId);
+        const eye = document.getElementById(fieldId + '-eye');
+        
+        if (field.type === 'password') {
+            field.type = 'text';
+            eye.className = 'fas fa-eye-slash';
+        } else {
+            field.type = 'password';
+            eye.className = 'fas fa-eye';
+        }
+    }
+    
+    // Form validation
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        
+        if (password !== confirmPassword) {
+            e.preventDefault();
+            showCyberNotification('Passwords do not match!', 'error');
+            return;
+        }
+        
+        const submitButton = this.querySelector('button[type="submit"]');
+        showCyberLoading(submitButton);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}OTP Verification - StyleHub Pro{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
+            <div class="cyber-card p-5">
+                <div class="text-center mb-4">
+                    <div class="mb-4">
+                        <i class="fas fa-mobile-alt fa-4x text-primary"></i>
+                    </div>
+                    <h2 class="cyber-title mb-3">VERIFY YOUR DEVICE</h2>
+                    <p class="text-muted">
+                        We've sent a 6-digit verification code to your phone number.
+                        <br><strong class="text-primary">Check your SMS or console for the code.</strong>
+                    </p>
+                </div>
+                
+                <form method="POST" id="otpForm">
+                    <!-- OTP Input -->
+                    <div class="mb-4">
+                        <label class="form-label text-primary fw-bold text-center d-block">
+                            <i class="fas fa-shield-alt me-2"></i>Enter Verification Code
+                        </label>
+                        <input type="text" name="otp_code" id="otp_code" class="form-control form-control-cyber text-center" 
+                               placeholder="000000" maxlength="6" pattern="\d{6}" required
+                               style="font-size: 1.5rem; letter-spacing: 0.5rem;">
+                        <small class="text-muted d-block text-center mt-2">Enter the 6-digit code</small>
+                    </div>
+                    
+                    <!-- Timer -->
+                    <div class="text-center mb-4">
+                        <div id="timer" class="text-primary fw-bold">
+                            <i class="fas fa-clock me-2"></i>Code expires in <span id="countdown">05:00</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="d-grid mb-4">
+                        <button type="submit" class="btn btn-cyber btn-lg">
+                            <i class="fas fa-check-circle me-2"></i>VERIFY CODE
+                        </button>
+                    </div>
+                    
+                    <!-- Resend Button -->
+                    <div class="text-center">
+                        <p class="text-muted mb-2">Didn't receive the code?</p>
+                        <button type="button" id="resendBtn" class="btn btn-outline-primary" onclick="resendOTP()" disabled>
+                            <i class="fas fa-redo me-2"></i>Resend Code
+                        </button>
+                        <div id="resendTimer" class="text-muted small mt-2">
+                            You can resend in <span id="resendCountdown">60</span> seconds
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let timeLeft = 300; // 5 minutes
+    let resendTimeLeft = 60; // 1 minute
+    
+    // Main timer countdown
+    function updateTimer() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        document.getElementById('countdown').textContent = 
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        if (timeLeft <= 0) {
+            document.getElementById('timer').innerHTML = 
+                '<i class="fas fa-exclamation-triangle me-2"></i><span class="text-danger">Code has expired</span>';
+            document.getElementById('resendBtn').disabled = false;
+            document.getElementById('resendTimer').style.display = 'none';
+        } else {
+            timeLeft--;
+            setTimeout(updateTimer, 1000);
+        }
+    }
+    
+    // Resend timer countdown
+    function updateResendTimer() {
+        document.getElementById('resendCountdown').textContent = resendTimeLeft;
+        
+        if (resendTimeLeft <= 0) {
+            document.getElementById('resendBtn').disabled = false;
+            document.getElementById('resendTimer').style.display = 'none';
+        } else {
+            resendTimeLeft--;
+            setTimeout(updateResendTimer, 1000);
+        }
+    }
+    
+    // Resend OTP function
+    function resendOTP() {
+        const button = document.getElementById('resendBtn');
+        const hideLoading = showCyberLoading(button);
+        
+        fetch('/resend_otp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            if (data.success) {
+                showCyberNotification(data.message, 'success');
+                
+                // Reset timers
+                timeLeft = 300;
+                resendTimeLeft = 60;
+                button.disabled = true;
+                document.getElementById('resendTimer').style.display = 'block';
+                
+                updateTimer();
+                updateResendTimer();
+            } else {
+                showCyberNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            showCyberNotification('Failed to resend OTP', 'error');
+        });
+    }
+    
+    // Auto-focus and format OTP input
+    document.getElementById('otp_code').addEventListener('input', function(e) {
+        // Only allow digits
+        this.value = this.value.replace(/\D/g, '');
+        
+        // Auto-submit when 6 digits entered
+        if (this.value.length === 6) {
+            setTimeout(() => {
+                document.getElementById('otpForm').submit();
+            }, 500);
+        }
+    });
+    
+    // Form submission
+    document.getElementById('otpForm').addEventListener('submit', function(e) {
+        const otpCode = document.getElementById('otp_code').value;
+        
+        if (otpCode.length !== 6) {
+            e.preventDefault();
+            showCyberNotification('Please enter a 6-digit verification code', 'error');
+            return;
+        }
+        
+        const submitButton = this.querySelector('button[type="submit"]');
+        showCyberLoading(submitButton);
+    });
+    
+    // Initialize timers
+    updateTimer();
+    updateResendTimer();
+    
+    // Auto-focus on OTP input
+    document.getElementById('otp_code').focus();
+</script>
+{% endblock %}

@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping Cart - StyleHub Pro{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="cyber-title mb-4">
+                <i class="fas fa-shopping-cart me-3"></i>CYBER CART
+            </h2>
+        </div>
+    </div>
+    
+    {% if cart_items %}
+    <div class="row g-4">
+        <!-- Cart Items -->
+        <div class="col-lg-8">
+            <div class="cyber-card p-4">
+                <h5 class="text-primary mb-4">
+                    <i class="fas fa-list me-2"></i>Cart Items ({{ cart_items|length }})
+                </h5>
+                
+                {% for item in cart_items %}
+                <div class="cart-item border-bottom border-secondary pb-4 mb-4" data-item-id="{{ item.id }}">
+                    <div class="row align-items-center">
+                        <!-- Product Image -->
+                        <div class="col-md-2">
+                            <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" 
+                                 class="img-fluid rounded" style="height: 80px; object-fit: cover;">
+                        </div>
+                        
+                        <!-- Product Details -->
+                        <div class="col-md-4">
+                            <h6 class="text-primary mb-1">{{ item.product.name }}</h6>
+                            <small class="text-muted d-block">
+                                {% if item.selected_size %}Size: {{ item.selected_size }}{% endif %}
+                                {% if item.selected_color %}{% if item.selected_size %} | {% endif %}Color: {{ item.selected_color }}{% endif %}
+                            </small>
+                            <small class="text-success">
+                                <i class="fas fa-check me-1"></i>In Stock
+                            </small>
+                        </div>
+                        
+                        <!-- Quantity Controls -->
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <button class="btn btn-outline-primary btn-sm" onclick="updateQuantity({{ item.id }}, {{ item.quantity - 1 }})">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <span class="quantity-display fw-bold text-primary px-3">{{ item.quantity }}</span>
+                                <button class="btn btn-outline-primary btn-sm" onclick="updateQuantity({{ item.id }}, {{ item.quantity + 1 }})">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Price and Actions -->
+                        <div class="col-md-3 text-end">
+                            <div class="mb-2">
+                                <span class="text-primary fw-bold fs-5">₹{{ "%.2f"|format(item.product.price * item.quantity) }}</span>
+                                <br>
+                                <small class="text-muted">₹{{ "%.2f"|format(item.product.price) }} each</small>
+                            </div>
+                            <button class="btn btn-outline-danger btn-sm" onclick="removeItem({{ item.id }})">
+                                <i class="fas fa-trash me-1"></i>Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Cart Summary -->
+        <div class="col-lg-4">
+            <div class="cyber-card p-4">
+                <h5 class="text-primary mb-4">
+                    <i class="fas fa-calculator me-2"></i>Order Summary
+                </h5>
+                
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-light">Subtotal:</span>
+                    <span class="text-primary fw-bold" id="cart-subtotal">₹{{ "%.2f"|format(cart_total) }}</span>
+                </div>
+                
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-light">Shipping:</span>
+                    <span class="text-success">FREE</span>
+                </div>
+                
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-light">Tax:</span>
+                    <span class="text-light">₹{{ "%.2f"|format(cart_total * 0.18) }}</span>
+                </div>
+                
+                <hr class="border-secondary">
+                
+                <div class="d-flex justify-content-between mb-4">
+                    <span class="text-light fw-bold fs-5">Total:</span>
+                    <span class="text-primary fw-bold fs-4" id="cart-total">₹{{ "%.2f"|format(cart_total * 1.18) }}</span>
+                </div>
+                
+                <!-- Security Features -->
+                <div class="mb-4">
+                    <h6 class="text-success mb-2">
+                        <i class="fas fa-shield-alt me-2"></i>Secure Checkout
+                    </h6>
+                    <div class="d-flex gap-2 mb-2">
+                        <i class="fas fa-lock text-success"></i>
+                        <small class="text-muted">256-bit SSL encryption</small>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <i class="fas fa-credit-card text-success"></i>
+                        <small class="text-muted">5 payment methods available</small>
+                    </div>
+                </div>
+                
+                <!-- Checkout Button -->
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('checkout') }}" class="btn btn-cyber btn-lg">
+                        <i class="fas fa-lock me-2"></i>SECURE CHECKOUT
+                    </a>
+                    <a href="{{ url_for('products') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <!-- Empty Cart -->
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-shopping-cart fa-4x text-muted mb-4"></i>
+                <h4 class="text-muted mb-3">Your cart is empty</h4>
+                <p class="text-muted mb-4">Looks like you haven't added any items to your cart yet</p>
+                <a href="{{ url_for('products') }}" class="btn btn-cyber btn-lg">
+                    <i class="fas fa-shopping-bag me-2"></i>START SHOPPING
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function updateQuantity(itemId, newQuantity) {
+        if (newQuantity < 1) {
+            removeItem(itemId);
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('quantity', newQuantity);
+        
+        fetch(`/update_cart_item/${itemId}`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update quantity display
+                const cartItem = document.querySelector(`[data-item-id="${itemId}"]`);
+                cartItem.querySelector('.quantity-display').textContent = newQuantity;
+                
+                // Update totals
+                updateCartTotals(data.cart_total);
+                
+                // Update navbar cart count
+                updateNavbarCartCount(data.cart_count);
+                
+                showCyberNotification(data.message, 'success');
+            } else {
+                showCyberNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            showCyberNotification('Error updating cart', 'error');
+        });
+    }
+    
+    function removeItem(itemId) {
+        if (!confirm('Are you sure you want to remove this item?')) {
+            return;
+        }
+        
+        fetch(`/remove_from_cart/${itemId}`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove item from DOM
+                const cartItem = document.querySelector(`[data-item-id="${itemId}"]`);
+                cartItem.remove();
+                
+                // Update totals
+                updateCartTotals(data.cart_total);
+                
+                // Update navbar cart count
+                updateNavbarCartCount(data.cart_count);
+                
+                // Check if cart is empty
+                if (data.cart_count === 0) {
+                    location.reload();
+                }
+                
+                showCyberNotification(data.message, 'success');
+            } else {
+                showCyberNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            showCyberNotification('Error removing item', 'error');
+        });
+    }
+    
+    function updateCartTotals(subtotal) {
+        const tax = subtotal * 0.18;
+        const total = subtotal + tax;
+        
+        document.getElementById('cart-subtotal').textContent = `₹${subtotal.toFixed(2)}`;
+        document.getElementById('cart-total').textContent = `₹${total.toFixed(2)}`;
+    }
+    
+    function updateNavbarCartCount(count) {
+        const cartBadge = document.querySelector('.cart-badge');
+        if (cartBadge) {
+            if (count > 0) {
+                cartBadge.textContent = count;
+            } else {
+                cartBadge.remove();
+            }
+        }
+    }
+</script>
+{% endblock %}

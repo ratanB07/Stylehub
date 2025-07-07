@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+
+{% block title %}StyleHub Pro - Cyber Fashion Revolution{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <!-- Hero Section -->
+    <section class="hero-section position-relative overflow-hidden" style="min-height: 100vh;">
+        <div class="position-absolute w-100 h-100" style="background: linear-gradient(45deg, rgba(0,255,255,0.1), rgba(255,0,255,0.1)), url('https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920') center/cover;"></div>
+        
+        <div class="container position-relative h-100 d-flex align-items-center" style="min-height: 100vh;">
+            <div class="row w-100 align-items-center">
+                <div class="col-lg-6 slide-in-left">
+                    <div class="mb-4">
+                        <span class="badge bg-success px-3 py-2">
+                            <i class="fas fa-bolt me-1"></i>CYBER EDITION 2024
+                        </span>
+                    </div>
+                    
+                    <h1 class="cyber-title mb-4">
+                        ENTER THE<br>
+                        <span class="glitch">DIGITAL</span><br>
+                        FASHION REALM
+                    </h1>
+                    
+                    <p class="lead mb-4 text-light" style="font-size: 1.2rem; line-height: 1.6;">
+                        Experience the future of fashion with our cutting-edge collection. 
+                        Secured with military-grade SMS verification and powered by 
+                        <span class="text-primary">5 advanced payment gateways</span>.
+                    </p>
+                    
+                    <div class="d-flex flex-column flex-sm-row gap-3 mb-4">
+                        <a href="{{ url_for('register') }}" class="btn btn-cyber btn-lg">
+                            <i class="fas fa-rocket me-2"></i>JOIN THE REVOLUTION
+                        </a>
+                        <a href="{{ url_for('products') }}" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-eye me-2"></i>EXPLORE COLLECTION
+                        </a>
+                    </div>
+                    
+                    <!-- Payment Methods Preview -->
+                    <div class="payment-preview mt-4">
+                        <p class="text-muted mb-2">ACCEPTED PAYMENT METHODS:</p>
+                        <div class="d-flex gap-3 align-items-center">
+                            <i class="fab fa-paypal fa-2x text-primary"></i>
+                            <i class="fab fa-stripe fa-2x text-primary"></i>
+                            <i class="fab fa-bitcoin fa-2x text-warning"></i>
+                            <i class="fas fa-credit-card fa-2x text-info"></i>
+                            <i class="fas fa-university fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6 slide-in-right">
+                    <div class="position-relative">
+                        <img src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=600" 
+                             alt="Cyber Fashion" class="img-fluid rounded" 
+                             style="filter: drop-shadow(0 0 30px rgba(0,255,255,0.5));">
+                        
+                        <!-- Floating Stats -->
+                        <div class="position-absolute top-0 end-0 cyber-card p-3 m-3">
+                            <div class="text-center">
+                                <h4 class="text-primary mb-1">1000+</h4>
+                                <small class="text-muted">Verified Users</small>
+                            </div>
+                        </div>
+                        
+                        <div class="position-absolute bottom-0 start-0 cyber-card p-3 m-3">
+                            <div class="text-center">
+                                <h4 class="text-secondary mb-1">99.9%</h4>
+                                <small class="text-muted">Uptime</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-5" style="background: rgba(10,10,10,0.8);">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="cyber-title mb-4">ADVANCED FEATURES</h2>
+                <p class="lead text-muted">Experience next-generation e-commerce technology</p>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6 fade-in">
+                    <div class="cyber-card p-4 h-100 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-shield-virus fa-3x text-primary"></i>
+                        </div>
+                        <h4 class="text-primary mb-3">QUANTUM SECURITY</h4>
+                        <p class="text-muted">
+                            Military-grade SMS verification with real-time OTP delivery. 
+                            Your account is protected by quantum encryption protocols.
+                        </p>
+                        <div class="mt-3">
+                            <span class="badge bg-primary">SMS VERIFIED</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 fade-in">
+                    <div class="cyber-card p-4 h-100 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-credit-card fa-3x text-secondary"></i>
+                        </div>
+                        <h4 class="text-secondary mb-3">MULTI-GATEWAY PAYMENTS</h4>
+                        <p style="color: white !important;">
+                            5 integrated payment methods including PayPal, Stripe, Razorpay, 
+                            Cryptocurrency, and Bank Transfers. Choose your preferred method.
+                        </p>
+                        <div class="mt-3">
+                            <span class="badge bg-secondary">5 GATEWAYS</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 fade-in">
+                    <div class="cyber-card p-4 h-100 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-rocket fa-3x text-warning"></i>
+                        </div>
+                        <h4 class="text-warning mb-3">INSTANT DELIVERY</h4>
+                        <p class="text-muted">
+                            Lightning-fast order processing with real-time tracking. 
+                            Your cyber fashion arrives at warp speed.
+                        </p>
+                        <div class="mt-3">
+                            <span class="badge bg-warning">WARP SPEED</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="cyber-title mb-4">FEATURED COLLECTION</h2>
+                <p class="lead text-muted">Handpicked items from the digital frontier</p>
+            </div>
+            
+            {% if featured_products %}
+            <div class="row g-4">
+                {% for product in featured_products %}
+                <div class="col-lg-3 col-md-6 fade-in">
+                    <div class="product-card h-100">
+                        <div class="position-relative">
+                            <img src="{{ product.image_url }}" alt="{{ product.name }}" 
+                                 class="card-img-top" style="height: 250px; object-fit: cover;">
+                            
+                            <!-- Product Badges -->
+                            <div class="position-absolute top-0 start-0 p-2">
+                                {% if product.is_new %}
+                                    <span class="badge bg-success me-1">NEW</span>
+                                {% endif %}
+                                {% if product.is_bestseller %}
+                                    <span class="badge bg-warning me-1">BESTSELLER</span>
+                                {% endif %}
+                                {% if product.original_price and product.original_price > product.price %}
+                                    <span class="badge bg-danger">
+                                        {{ "%.0f"|format(((product.original_price - product.price) / product.original_price) * 100) }}% OFF
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="card-body p-4 bg-dark text-white">
+                            <h5 class="text-primary mb-2">{{ product.name }}</h5>
+                            <p class="text-white small mb-3">{{ product.description[:80] }}...</p>
+                            
+                            <!-- Rating -->
+                            <div class="mb-3">
+                        
+                                <div class="d-flex align-items-center">
+                                    {% for i in range(5) %}
+                                        {% if i < product.rating %}
+                                            <i class="fas fa-star text-warning"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-muted"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="text-muted ms-2 small">({{ product.review_count }})</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Price -->
+                            <div class="mb-3">
+                                <span class="text-primary fw-bold fs-5">₹{{ "%.0f"|format(product.price) }}</span>
+                                {% if product.original_price and product.original_price > product.price %}
+                                    <span class="text-muted text-decoration-line-through ms-2">₹{{ "%.0f"|format(product.original_price) }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Actions -->
+                            <div class="d-grid gap-2">
+                                <a href="{{ url_for('product_detail', product_id=product.id) }}" 
+                                   class="btn btn-cyber btn-sm">
+                                    <i class="fas fa-eye me-2"></i>VIEW DETAILS
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="text-center mt-5">
+                <a href="{{ url_for('products') }}" class="btn btn-cyber btn-lg">
+                    <i class="fas fa-rocket me-2"></i>EXPLORE ALL PRODUCTS
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-5 position-relative overflow-hidden">
+        <div class="position-absolute w-100 h-100" style="background: linear-gradient(45deg, rgba(0,255,255,0.2), rgba(255,0,255,0.2));"></div>
+        
+        <div class="container position-relative">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h3 class="text-primary fw-bold mb-2">READY TO JOIN THE CYBER REVOLUTION?</h3>
+                    <p class="text-light mb-0 fs-5">
+                        Register now with SMS verification and get instant access to exclusive cyber fashion collections.
+                    </p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <a href="{{ url_for('register') }}" class="btn btn-cyber btn-lg">
+                        <i class="fas fa-rocket me-2"></i>START YOUR JOURNEY
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Intersection Observer for animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    // Observe fade-in elements
+    document.querySelectorAll('.fade-in').forEach(element => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(30px)';
+        element.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+        observer.observe(element);
+    });
+
+    // Parallax effect for hero section
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const parallax = document.querySelector('.hero-section');
+        if (parallax) {
+            const speed = scrolled * 0.5;
+            parallax.style.transform = `translateY(${speed}px)`;
+        }
+    });
+</script>
+{% endblock %}

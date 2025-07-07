@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}Products - StyleHub Pro{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="cyber-title mb-4">
+                <i class="fas fa-cube me-3"></i>CYBER COLLECTION
+            </h2>
+            <p class="text-muted">Discover the future of fashion</p>
+        </div>
+    </div>
+    
+    <!-- Filters and Search -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <form method="GET" class="d-flex gap-3">
+                <!-- Search -->
+                <div class="flex-grow-1">
+                    <input type="text" name="search" class="form-control form-control-cyber" 
+                           placeholder="Search products..." value="{{ search }}">
+                </div>
+                
+                <!-- Category Filter -->
+                <div>
+                    <select name="category" class="form-select form-control-cyber" style="min-width: 150px;">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}" {% if current_category == category.id %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Sort -->
+                <div>
+                    <select name="sort" class="form-select form-control-cyber" style="min-width: 150px;">
+                        <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Name A-Z</option>
+                        <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price Low-High</option>
+                        <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price High-Low</option>
+                        <option value="rating" {% if sort_by == 'rating' %}selected{% endif %}>Highest Rated</option>
+                        <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-cyber">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+        
+        <div class="col-lg-4 text-lg-end">
+            <span class="text-muted">
+                Showing {{ products.items|length }} of {{ products.total }} products
+            </span>
+        </div>
+    </div>
+    
+    <!-- Products Grid -->
+    {% if products.items %}
+    <div class="row g-4 mb-5">
+        {% for product in products.items %}
+        <div class="col-lg-3 col-md-6">
+            <div class="product-card h-100">
+                <div class="position-relative">
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}" 
+                         class="card-img-top" style="height: 250px; object-fit: cover;">
+                    
+                    <!-- Product Badges -->
+                    <div class="position-absolute top-0 start-0 p-2">
+                        {% if product.is_new %}
+                            <span class="badge bg-success me-1">NEW</span>
+                        {% endif %}
+                        {% if product.is_bestseller %}
+                            <span class="badge bg-warning me-1">BESTSELLER</span>
+                        {% endif %}
+                        {% if product.original_price and product.original_price > product.price %}
+                            <span class="badge bg-danger">
+                                {{ "%.0f"|format(((product.original_price - product.price) / product.original_price) * 100) }}% OFF
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Stock Status -->
+                    <div class="position-absolute top-0 end-0 p-2">
+                        {% if product.stock_quantity <= 0 %}
+                            <span class="badge bg-danger">OUT OF STOCK</span>
+                        {% elif product.stock_quantity < 10 %}
+                            <span class="badge bg-warning">LOW STOCK</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <h5 class="text-primary mb-2">{{ product.name }}</h5>
+                    <p class="text-muted small mb-3">{{ product.description[:80] }}...</p>
+                    
+                    <!-- Rating -->
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center">
+                            {% for i in range(5) %}
+                                {% if i < product.rating %}
+                                    <i class="fas fa-star text-warning"></i>
+                                {% else %}
+                                    <i class="far fa-star text-muted"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="text-muted ms-2 small">({{ product.review_count }})</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Price -->
+                    <div class="mb-3">
+                        <span class="text-primary fw-bold fs-5">₹{{ "%.0f"|format(product.price) }}</span>
+                        {% if product.original_price and product.original_price > product.price %}
+                            <span class="text-muted text-decoration-line-through ms-2">₹{{ "%.0f"|format(product.original_price) }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('product_detail', product_id=product.id) }}" 
+                           class="btn btn-cyber btn-sm">
+                            <i class="fas fa-eye me-2"></i>VIEW DETAILS
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if products.pages > 1 %}
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="Product pagination">
+                <ul class="pagination justify-content-center">
+                    {% if products.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link bg-dark border-primary text-primary" 
+                               href="{{ url_for('products', page=products.prev_num, search=search, category=current_category, sort=sort_by) }}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for page_num in products.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != products.page %}
+                                <li class="page-item">
+                                    <a class="page-link bg-dark border-primary text-primary" 
+                                       href="{{ url_for('products', page=page_num, search=search, category=current_category, sort=sort_by) }}">
+                                        {{ page_num }}
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item active">
+                                    <span class="page-link bg-primary border-primary">{{ page_num }}</span>
+                                </li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link bg-dark border-primary text-muted">...</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if products.has_next %}
+                        <li class="page-item">
+                            <a class="page-link bg-dark border-primary text-primary" 
+                               href="{{ url_for('products', page=products.next_num, search=search, category=current_category, sort=sort_by) }}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <!-- No Products Found -->
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-4x text-muted mb-4"></i>
+                <h4 class="text-muted mb-3">No products found</h4>
+                <p class="text-muted mb-4">Try adjusting your search criteria or browse all products</p>
+                <a href="{{ url_for('products') }}" class="btn btn-cyber">
+                    <i class="fas fa-refresh me-2"></i>View All Products
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

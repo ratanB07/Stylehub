@@ -1,0 +1,7 @@
+Flask==2.3.3
+Flask-SQLAlchemy==3.0.5
+Werkzeug==2.3.7
+vonage==3.10.0
+paypalrestsdk==1.13.3
+python-dotenv==1.0.0
+gunicorn==21.2.0

@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Orders - Admin{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="cyber-title mb-4">
+                <i class="fas fa-shopping-bag me-3"></i>ORDER MANAGEMENT
+            </h2>
+            <p class="text-muted mb-4">Track and manage customer orders</p>
+        </div>
+    </div>
+    
+    <!-- Orders Table -->
+    <div class="cyber-card p-4">
+        <h5 class="text-primary mb-4">
+            <i class="fas fa-list me-2"></i>All Orders
+        </h5>
+        
+        {% if orders.items %}
+        <div class="table-responsive">
+            <table class="table table-dark table-hover">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Items</th>
+                        <th>Amount</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders.items %}
+                    <tr>
+                        <td class="text-primary fw-bold">#{{ order.order_number }}</td>
+                        <td>
+                            <div>
+                                <h6 class="text-light mb-1">{{ order.user.username }}</h6>
+                                <small class="text-muted">{{ order.user.phone }}</small>
+                            </div>
+                        </td>
+                        <td>{{ order.created_at.strftime('%d %b %Y') }}</td>
+                        <td>{{ order.items|length }} items</td>
+                        <td class="text-success fw-bold">₹{{ "%.2f"|format(order.total_amount) }}</td>
+                        <td>
+                            {% if order.payment_status == 'completed' %}
+                                <span class="badge bg-success">Paid</span>
+                            {% elif order.payment_status == 'pending' %}
+                                <span class="badge bg-warning">Pending</span>
+                            {% else %}
+                                <span class="badge bg-danger">{{ order.payment_status|title }}</span>
+                            {% endif %}
+                            <br><small class="text-muted">{{ order.payment_method|title }}</small>
+                        </td>
+                        <td>
+                            <form method="POST" action="{{ url_for('update_order_status', order_id=order.id) }}" class="d-inline">
+                                <select name="status" class="form-select form-select-sm bg-dark text-light border-secondary" 
+                                        onchange="this.form.submit()" style="min-width: 120px;">
+                                    <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+                                    <option value="confirmed" {% if order.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                                    <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>Processing</option>
+                                    <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>Shipped</option>
+                                    <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>Delivered</option>
+                                    <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="viewOrder({{ order.id }})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="printOrder({{ order.id }})">
+                                    <i class="fas fa-print"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if orders.pages > 1 %}
+        <nav aria-label="Orders pagination" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if orders.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link bg-dark border-primary text-primary" 
+                           href="{{ url_for('admin_orders', page=orders.prev_num) }}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                {% endif %}
+                
+                {% for page_num in orders.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != orders.page %}
+                            <li class="page-item">
+                                <a class="page-link bg-dark border-primary text-primary" 
+                                   href="{{ url_for('admin_orders', page=page_num) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item active">
+                                <span class="page-link bg-primary border-primary">{{ page_num }}</span>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link bg-dark border-primary text-muted">...</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if orders.has_next %}
+                    <li class="page-item">
+                        <a class="page-link bg-dark border-primary text-primary" 
+                           href="{{ url_for('admin_orders', page=orders.next_num) }}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-shopping-bag fa-4x text-muted mb-4"></i>
+            <h4 class="text-muted mb-3">No orders found</h4>
+            <p class="text-muted">Orders will appear here once customers start purchasing</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function viewOrder(orderId) {
+        window.location.href = `/order_confirmation/${orderId}`;
+    }
+    
+    function printOrder(orderId) {
+        showCyberNotification(`Print order ${orderId} feature coming soon!`, 'info');
+    }
+</script>
+{% endblock %}

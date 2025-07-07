@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Login - StyleHub Pro{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
+            <div class="cyber-card p-5">
+                <div class="text-center mb-4">
+                    <h2 class="cyber-title mb-3">ACCESS GRANTED</h2>
+                    <p class="text-muted">Enter your credentials to access the cyber realm</p>
+                </div>
+                
+                <form method="POST" id="loginForm">
+                    <!-- Username/Phone -->
+                    <div class="mb-4">
+                        <label class="form-label text-primary fw-bold">
+                            <i class="fas fa-user me-2"></i>Username or Phone
+                        </label>
+                        <input type="text" name="username" class="form-control form-control-cyber" 
+                               placeholder="Enter username or phone number" required>
+                    </div>
+                    
+                    <!-- Password -->
+                    <div class="mb-4">
+                        <label class="form-label text-primary fw-bold">
+                            <i class="fas fa-lock me-2"></i>Password
+                        </label>
+                        <div class="position-relative">
+                            <input type="password" name="password" id="password" class="form-control form-control-cyber" 
+                                   placeholder="Enter your password" required>
+                            <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-muted" 
+                                    onclick="togglePassword('password')">
+                                <i class="fas fa-eye" id="password-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="d-grid mb-4">
+                        <button type="submit" class="btn btn-cyber btn-lg">
+                            <i class="fas fa-sign-in-alt me-2"></i>ENTER SYSTEM
+                        </button>
+                    </div>
+                    
+                    <!-- Demo Credentials -->
+                    <div class="cyber-card p-3 mb-4">
+                        <h6 class="text-primary mb-2">Demo Credentials:</h6>
+                        <small class="text-muted d-block">Admin: admin / admin123</small>
+                        <small class="text-muted d-block">User: demo / demo123</small>
+                    </div>
+                    
+                    <!-- Register Link -->
+                    <div class="text-center">
+                        <span class="text-muted">New to the system? </span>
+                        <a href="{{ url_for('register') }}" class="text-primary fw-bold">Create Account</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function togglePassword(fieldId) {
+        const field = document.getElementById(fieldId);
+        const eye = document.getElementById(fieldId + '-eye');
+        
+        if (field.type === 'password') {
+            field.type = 'text';
+            eye.className = 'fas fa-eye-slash';
+        } else {
+            field.type = 'password';
+            eye.className = 'fas fa-eye';
+        }
+    }
+    
+    // Form submission
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        const submitButton = this.querySelector('button[type="submit"]');
+        showCyberLoading(submitButton);
+    });
+</script>
+{% endblock %}

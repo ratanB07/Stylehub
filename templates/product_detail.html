@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - StyleHub Pro{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-5">
+        <!-- Product Image -->
+        <div class="col-lg-6">
+            <div class="cyber-card p-4">
+                <img src="{{ product.image_url }}" 
+                     alt="{{ product.name }}" 
+                     class="img-fluid rounded" 
+                     style="width: 100%; height: 400px; object-fit: cover;"
+                     onerror="this.src='https://picsum.photos/500/500?random={{ product.id }}'; this.onerror=null;">
+                
+                <!-- Product Badges -->
+                <div class="mt-3 d-flex gap-2">
+                    {% if product.is_new %}
+                        <span class="badge bg-success">NEW</span>
+                    {% endif %}
+                    {% if product.is_bestseller %}
+                        <span class="badge bg-warning">BESTSELLER</span>
+                    {% endif %}
+                    {% if product.is_featured %}
+                        <span class="badge bg-primary">FEATURED</span>
+                    {% endif %}
+                    {% if product.original_price and product.original_price > product.price %}
+                        <span class="badge bg-danger">
+                            {{ "%.0f"|format(((product.original_price - product.price) / product.original_price) * 100) }}% OFF
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Product Details -->
+        <div class="col-lg-6">
+            <div class="cyber-card p-4">
+                <h1 class="cyber-title mb-3">{{ product.name }}</h1>
+                
+                <!-- Rating -->
+                <div class="mb-3">
+                    <div class="d-flex align-items-center">
+                        {% for i in range(5) %}
+                            {% if i < product.rating %}
+                                <i class="fas fa-star text-warning"></i>
+                            {% else %}
+                                <i class="far fa-star text-muted"></i>
+                            {% endif %}
+                        {% endfor %}
+                        <span class="text-muted ms-2">({{ product.review_count }} reviews)</span>
+                    </div>
+                </div>
+                
+                <!-- Price -->
+                <div class="mb-4">
+                    <span class="text-primary fw-bold" style="font-size: 2rem;">₹{{ "%.0f"|format(product.price) }}</span>
+                    {% if product.original_price and product.original_price > product.price %}
+                        <span class="text-muted text-decoration-line-through ms-3 fs-5">₹{{ "%.0f"|format(product.original_price) }}</span>
+                        <span class="badge bg-danger ms-2">
+                            {{ "%.0f"|format(((product.original_price - product.price) / product.original_price) * 100) }}% OFF
+                        </span>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-4 bg-dark p-3 rounded">
+                    <h5 class="text-primary mb-2">Description</h5>
+                    <p class="text-white mb-0">{{ product.description }}</p>
+                </div>
+                
+                
+                
+                <!-- Specifications -->
+                {% if product.specifications_dict %}
+                <div class="mb-4">
+                    <h5 class="text-primary mb-2">Specifications</h5>
+                    <div class="row g-2">
+                        {% for key, value in product.specifications_dict.items() %}
+                        <div class="col-6">
+                            <strong class="text-secondary">{{ key }}:</strong>
+                            <span class="text-light">{{ value }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Add to Cart Form -->
+                {% if session.user_id %}
+                <form id="addToCartForm" class="mb-4">
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    
+                    <!-- Size Selection -->
+                    {% if product.sizes_list %}
+                    <div class="mb-3">
+                        <label class="form-label text-primary fw-bold">Size:</label>
+                        <div class="d-flex gap-2 flex-wrap">
+                            {% for size in product.sizes_list %}
+                            <input type="radio" class="btn-check" name="selected_size" 
+                                   id="size_{{ size }}" value="{{ size }}" required>
+                            <label class="btn btn-outline-primary" for="size_{{ size }}">{{ size }}</label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Color Selection -->
+                    {% if product.colors_list %}
+                    <div class="mb-3">
+                        <label class="form-label text-primary fw-bold">Color:</label>
+                        <div class="d-flex gap-2 flex-wrap">
+                            {% for color in product.colors_list %}
+                            <input type="radio" class="btn-check" name="selected_color" 
+                                   id="color_{{ loop.index }}" value="{{ color }}" required>
+                            <label class="btn btn-outline-secondary" for="color_{{ loop.index }}">{{ color }}</label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Quantity -->
+                    <div class="mb-3">
+                        <label class="form-label text-primary fw-bold">Quantity:</label>
+                        <div class="d-flex align-items-center gap-3">
+                            <button type="button" class="btn btn-outline-primary" onclick="changeQuantity(-1)">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="number" name="quantity" id="quantity" class="form-control form-control-cyber text-center" 
+                                   value="1" min="1" max="{{ product.stock_quantity }}" style="width: 80px;">
+                            <button type="button" class="btn btn-outline-primary" onclick="changeQuantity(1)">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted">{{ product.stock_quantity }} items available</small>
+                    </div>
+                    
+                    <!-- Stock Status -->
+                    <div class="mb-4">
+                        {% if product.stock_quantity > 0 %}
+                            <span class="badge bg-success">
+                                <i class="fas fa-check me-1"></i>In Stock
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger">
+                                <i class="fas fa-times me-1"></i>Out of Stock
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2">
+                        {% if product.stock_quantity > 0 %}
+                            <button type="submit" class="btn btn-cyber btn-lg">
+                                <i class="fas fa-shopping-cart me-2"></i>ADD TO CART
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-lg" onclick="buyNow()">
+                                <i class="fas fa-bolt me-2"></i>BUY NOW
+                            </button>
+                        {% else %}
+                            <button type="button" class="btn btn-secondary btn-lg" disabled>
+                                <i class="fas fa-times me-2"></i>OUT OF STOCK
+                            </button>
+                        {% endif %}
+                    </div>
+                </form>
+                {% else %}
+                <div class="alert alert-cyber-error">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Please <a href="{{ url_for('login') }}" class="text-primary">login</a> to add items to cart
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Related Products -->
+    {% if related_products %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3 class="cyber-title mb-4">RELATED PRODUCTS</h3>
+            
+            <div class="row g-4">
+                {% for related_product in related_products %}
+                <div class="col-lg-3 col-md-6">
+                    <div class="product-card h-100">
+                        <div class="position-relative">
+                            <img src="{{ related_product.image_url }}" 
+                                 alt="{{ related_product.name }}" 
+                                 class="card-img-top" 
+                                 style="height: 200px; object-fit: cover;"
+                                 onerror="this.src='https://picsum.photos/500/500?random={{ related_product.id }}'; this.onerror=null;">
+                        </div>
+                        
+                        <div class="card-body p-3">
+                            <h6 class="text-primary mb-2">{{ related_product.name }}</h6>
+                            <div class="mb-2">
+                                <span class="text-primary fw-bold">₹{{ "%.0f"|format(related_product.price) }}</span>
+                            </div>
+                            <div class="d-grid">
+                                <a href="{{ url_for('product_detail', product_id=related_product.id) }}" 
+                                   class="btn btn-outline-primary btn-sm">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function changeQuantity(delta) {
+        const quantityInput = document.getElementById('quantity');
+        const currentValue = parseInt(quantityInput.value);
+        const newValue = currentValue + delta;
+        const maxValue = parseInt(quantityInput.max);
+        
+        if (newValue >= 1 && newValue <= maxValue) {
+            quantityInput.value = newValue;
+        }
+    }
+    
+    function buyNow() {
+        // Add to cart first, then redirect to checkout
+        const form = document.getElementById('addToCartForm');
+        const formData = new FormData(form);
+        
+        fetch('/add_to_cart', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = '/checkout';
+            } else {
+                showCyberNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            showCyberNotification('Error adding to cart', 'error');
+        });
+    }
+    
+    // Add to cart form submission
+    document.getElementById('addToCartForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const submitButton = this.querySelector('button[type="submit"]');
+        const hideLoading = showCyberLoading(submitButton);
+        
+        fetch('/add_to_cart', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            if (data.success) {
+                showCyberNotification(data.message, 'success');
+                // Update cart count in navbar
+                const cartBadge = document.querySelector('.cart-badge');
+                if (cartBadge) {
+                    cartBadge.textContent = data.cart_count;
+                } else if (data.cart_count > 0) {
+                    // Create cart badge if it doesn't exist
+                    const cartLink = document.querySelector('a[href="/cart"]');
+                    if (cartLink) {
+                        cartLink.innerHTML += `<span class="cart-badge">${data.cart_count}</span>`;
+                    }
+                }
+            } else {
+                showCyberNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            showCyberNotification('Error adding to cart', 'error');
+        });
+    });
+</script>
+{% endblock %}

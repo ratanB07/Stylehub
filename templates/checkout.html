@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - StyleHub Pro{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="cyber-title mb-4">
+                <i class="fas fa-lock me-3"></i>SECURE CHECKOUT
+            </h2>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <!-- Order Summary -->
+        <div class="col-lg-4 order-lg-2">
+            <div class="cyber-card p-4">
+                <h5 class="text-primary mb-4">
+                    <i class="fas fa-receipt me-2"></i>Order Summary
+                </h5>
+                
+                <!-- Cart Items -->
+                {% for item in cart_items %}
+                <div class="d-flex align-items-center mb-3 pb-3 border-bottom border-secondary">
+                    <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" 
+                         class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                    <div class="flex-grow-1">
+                        <h6 class="text-light mb-1">{{ item.product.name }}</h6>
+                        <small class="text-muted">
+                            Qty: {{ item.quantity }}
+                            {% if item.selected_size %} | Size: {{ item.selected_size }}{% endif %}
+                            {% if item.selected_color %} | Color: {{ item.selected_color }}{% endif %}
+                        </small>
+                    </div>
+                    <span class="text-primary fw-bold">${{ "%.2f"|format(item.product.price * item.quantity) }}</span>
+                </div>
+                {% endfor %}
+                
+                <!-- Totals -->
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-light">Subtotal:</span>
+                    <span class="text-primary">${{ "%.2f"|format(cart_total) }}</span>
+                </div>
+                
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-light">Shipping:</span>
+                    <span class="text-success">FREE</span>
+                </div>
+                
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-light">Tax (18%):</span>
+                    <span class="text-light">${{ "%.2f"|format(cart_total * 0.18) }}</span>
+                </div>
+                
+                <hr class="border-secondary">
+                
+                <div class="d-flex justify-content-between mb-4">
+                    <span class="text-light fw-bold fs-5">Total:</span>
+                    <span class="text-primary fw-bold fs-4">${{ "%.2f"|format(cart_total * 1.18) }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Payment Form -->
+        <div class="col-lg-8 order-lg-1">
+            <form id="checkoutForm">
+                <!-- Shipping Information -->
+                <div class="cyber-card p-4 mb-4">
+                    <h5 class="text-primary mb-4">
+                        <i class="fas fa-shipping-fast me-2"></i>Shipping Information
+                    </h5>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-primary">Full Name</label>
+                            <input type="text" class="form-control form-control-cyber" 
+                                   value="{{ user.full_name or user.username }}" required>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label text-primary">Phone Number</label>
+                            <input type="tel" class="form-control form-control-cyber" 
+                                   value="{{ user.phone }}" required>
+                        </div>
+                        
+                        <div class="col-12">
+                            <label class="form-label text-primary">Address Line 1</label>
+                            <input type="text" class="form-control form-control-cyber" 
+                                   value="{{ user.address_line1 or '' }}" placeholder="Street address" required>
+                        </div>
+                        
+                        <div class="col-12">
+                            <label class="form-label text-primary">Address Line 2</label>
+                            <input type="text" class="form-control form-control-cyber" 
+                                   value="{{ user.address_line2 or '' }}" placeholder="Apartment, suite, etc. (optional)">
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <label class="form-label text-primary">City</label>
+                            <input type="text" class="form-control form-control-cyber" 
+                                   value="{{ user.city or '' }}" required>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <label class="form-label text-primary">State</label>
+                            <input type="text" class="form-control form-control-cyber" 
+                                   value="{{ user.state or '' }}" required>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <label class="form-label text-primary">PIN Code</label>
+                            <input type="text" class="form-control form-control-cyber" 
+                                   value="{{ user.pincode or '' }}" pattern="[0-9]{6}" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment Methods -->
+                <div class="cyber-card p-4">
+                    <h5 class="text-primary mb-4">
+                        <i class="fas fa-credit-card me-2"></i>Payment Method
+                    </h5>
+                    
+                    <div class="row g-3">
+                        <!-- PayPal -->
+                        <div class="col-md-12">
+                            <div class="payment-method selected" onclick="selectPayment('paypal')">
+                                <input type="radio" name="payment_method" value="paypal" id="paypal" class="d-none" checked>
+                                <div class="text-center">
+                                    <i class="fab fa-paypal fa-3x text-primary mb-2"></i>
+                                    <h6 class="text-primary">PayPal</h6>
+                                    <small class="text-muted">Secure payment with PayPal - Real-time processing</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Security Notice -->
+                    <div class="mt-4 p-3 border border-success rounded">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-shield-alt fa-2x text-success me-3"></i>
+                            <div>
+                                <h6 class="text-success mb-1">Real-time Payment Processing</h6>
+                                <small class="text-muted">
+                                    Your payment is processed securely through PayPal's encrypted gateway. 
+                                    You will be redirected to PayPal to complete the transaction.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Place Order Button -->
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-cyber btn-lg">
+                            <i class="fas fa-lock me-2"></i>PROCEED TO PAYPAL - ${{ "%.2f"|format(cart_total * 1.18) }}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function selectPayment(method) {
+        // Remove selected class from all payment methods
+        document.querySelectorAll('.payment-method').forEach(el => {
+            el.classList.remove('selected');
+        });
+        
+        // Add selected class to clicked method
+        event.currentTarget.classList.add('selected');
+        
+        // Check the radio button
+        document.getElementById(method).checked = true;
+    }
+    
+    // Form submission
+    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
+        if (!selectedPayment) {
+            showCyberNotification('Please select a payment method', 'error');
+            return;
+        }
+        
+        const submitButton = this.querySelector('button[type="submit"]');
+        const hideLoading = showCyberLoading(submitButton);
+        
+        const formData = new FormData();
+        formData.append('payment_method', selectedPayment.value);
+        
+        fetch('/process_payment', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            if (data.success) {
+                if (data.redirect_url) {
+                    // Redirect to PayPal
+                    showCyberNotification(data.message, 'success');
+                    setTimeout(() => {
+                        window.location.href = data.redirect_url;
+                    }, 1000);
+                } else {
+                    // Direct success
+                    showCyberNotification(data.message, 'success');
+                    setTimeout(() => {
+                        window.location.href = `/order_confirmation/${data.order_id}`;
+                    }, 1500);
+                }
+            } else {
+                showCyberNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            showCyberNotification('Payment processing failed', 'error');
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Order Confirmation - StyleHub Pro{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Success Message -->
+            <div class="text-center mb-5">
+                <div class="mb-4">
+                    <i class="fas fa-check-circle fa-5x text-success"></i>
+                </div>
+                <h2 class="cyber-title text-success mb-3">ORDER CONFIRMED!</h2>
+                <p class="text-muted fs-5">Thank you for your purchase. Your order has been successfully placed.</p>
+            </div>
+            
+            <!-- Order Details -->
+            <div class="cyber-card p-4 mb-4">
+                <h5 class="text-primary mb-4">
+                    <i class="fas fa-receipt me-2"></i>Order Details
+                </h5>
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <strong class="text-primary">Order Number:</strong>
+                        <span class="text-light ms-2">#{{ order.order_number }}</span>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <strong class="text-primary">Order Date:</strong>
+                        <span class="text-light ms-2">{{ order.created_at.strftime('%d %B %Y, %I:%M %p') }}</span>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <strong class="text-primary">Payment Method:</strong>
+                        <span class="text-light ms-2">{{ order.payment_method|title }}</span>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <strong class="text-primary">Payment Status:</strong>
+                        <span class="badge bg-success">{{ order.payment_status|title }}</span>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <strong class="text-primary">Order Status:</strong>
+                        <span class="badge bg-info">{{ order.status|title }}</span>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <strong class="text-primary">Total Amount:</strong>
+                        <span class="text-success fw-bold fs-5 ms-2">₹{{ "%.2f"|format(order.total_amount) }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Items -->
+            <div class="cyber-card p-4 mb-4">
+                <h5 class="text-primary mb-4">
+                    <i class="fas fa-box me-2"></i>Order Items
+                </h5>
+                
+                {% for item in order.items %}
+                <div class="d-flex align-items-center mb-3 pb-3 {% if not loop.last %}border-bottom border-secondary{% endif %}">
+                    <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" 
+                         class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                    
+                    <div class="flex-grow-1">
+                        <h6 class="text-light mb-1">{{ item.product.name }}</h6>
+                        <small class="text-muted">
+                            Quantity: {{ item.quantity }}
+                            {% if item.selected_size %} | Size: {{ item.selected_size }}{% endif %}
+                            {% if item.selected_color %} | Color: {{ item.selected_color }}{% endif %}
+                        </small>
+                        <div class="mt-1">
+                            <span class="text-primary">₹{{ "%.2f"|format(item.price) }} each</span>
+                        </div>
+                    </div>
+                    
+                    <div class="text-end">
+                        <span class="text-success fw-bold">₹{{ "%.2f"|format(item.price * item.quantity) }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Shipping Information -->
+            {% if order.shipping_address %}
+            <div class="cyber-card p-4 mb-4">
+                <h5 class="text-primary mb-4">
+                    <i class="fas fa-shipping-fast me-2"></i>Shipping Address
+                </h5>
+                
+                {% set address = order.shipping_address|from_json %}
+                <div class="text-light">
+                    <div class="mb-2"><strong>{{ address.full_name }}</strong></div>
+                    <div class="mb-1">{{ address.address_line1 }}</div>
+                    {% if address.address_line2 %}
+                    <div class="mb-1">{{ address.address_line2 }}</div>
+                    {% endif %}
+                    <div>{{ address.city }}, {{ address.state }} - {{ address.pincode }}</div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Next Steps -->
+            <div class="cyber-card p-4 mb-4">
+                <h5 class="text-primary mb-4">
+                    <i class="fas fa-info-circle me-2"></i>What's Next?
+                </h5>
+                
+                <div class="row g-3">
+                    <div class="col-md-4 text-center">
+                        <i class="fas fa-cog fa-2x text-warning mb-2"></i>
+                        <h6 class="text-warning">Processing</h6>
+                        <small class="text-muted">We're preparing your order</small>
+                    </div>
+                    
+                    <div class="col-md-4 text-center">
+                        <i class="fas fa-truck fa-2x text-info mb-2"></i>
+                        <h6 class="text-info">Shipping</h6>
+                        <small class="text-muted">Your order will be shipped soon</small>
+                    </div>
+                    
+                    <div class="col-md-4 text-center">
+                        <i class="fas fa-home fa-2x text-success mb-2"></i>
+                        <h6 class="text-success">Delivery</h6>
+                        <small class="text-muted">Delivered to your doorstep</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-cyber w-100">
+                        <i class="fas fa-user-circle me-2"></i>View Dashboard
+                    </a>
+                </div>
+                
+                <div class="col-md-4">
+                    <a href="{{ url_for('products') }}" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-shopping-bag me-2"></i>Continue Shopping
+                    </a>
+                </div>
+                
+                <div class="col-md-4">
+                    <button class="btn btn-outline-secondary w-100" onclick="window.print()">
+                        <i class="fas fa-print me-2"></i>Print Receipt
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add from_json filter simulation for JavaScript
+    function parseShippingAddress(addressStr) {
+        try {
+            return JSON.parse(addressStr);
+        } catch (e) {
+            return {};
+        }
+    }
+</script>
+{% endblock %}
